@@ -1,40 +1,12 @@
-/*
-  Example of changing a sound in response to pin changes detected
-  in the background with an interrupt, using PinChangeInt library
-  with Mozzi sonification library.
 
-  Demonstrates using Mozzi with PinChangeInt library from:
-  http://code.google.com/p/arduino-pinchangeint/
-  (Not for Teensy 3.1)
-
-  Circuit:
-
-    Audio output on digital pin 9 on a Uno or similar, or
-    check the README or http://sensorium.github.com/Mozzi/
-
-    Pushbutton on digital pin D4
-      button from the digital pin to +5V
-      10K resistor from the digital pin to ground
-      6.8nf capacitor from the digital pin to ground
-
-
-  Mozzi documentation/API
-  https://sensorium.github.io/Mozzi/doc/html/index.html
-
-  Mozzi help/discussion/announcements:
-  https://groups.google.com/forum/#!forum/mozzi-users
-
-  Tim Barrass 2013, CC by-nc-sa.
- */
 
 #include <MozziGuts.h>
 #include <Oscil.h> // oscillator template
 #include <tables/sin2048_int8.h> // sine table for oscillator
 #include <PinChangeInt.h>
 
-#define PIN 4  // the pin we are interested in
+#define PIN 4  // push button pin
 
-// use: Oscil <table_size, update_rate> oscilName (wavetable), look in .h file of table #included above
 Oscil <SIN2048_NUM_CELLS, AUDIO_RATE> aSin(SIN2048_DATA);
 
 
@@ -43,7 +15,6 @@ void setup(){
   pinMode(PIN, INPUT);     //set the pin to input
   digitalWrite(PIN, HIGH); //use the internal pullup resistor
   PCintPort::attachInterrupt(PIN, changeFreq,RISING); // attach a PinChange Interrupt to our pin on the rising edge
-  // (RISING, FALLING and CHANGE all work with this library)
   // and execute the function changeFreq when that pin changes
   startMozzi();
 }
@@ -58,12 +29,12 @@ void updateControl(){
 
 void changeFreq()
 {
-  static int freq = 220;
-  if (freq==220){
-    freq=330;
+  static int freq = 0;
+  if (freq==0){
+    freq=440;
   }
   else{
-    freq=220;
+    freq=0;
   }
   aSin.setFreq(freq); // set the frequency
 }
