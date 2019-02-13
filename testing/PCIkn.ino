@@ -39,11 +39,14 @@ long fm_intensity; // carries control info from updateControl to updateAudio
 float smoothness = 0.95f;
 Smooth <long> aSmoothIntensity(smoothness);
 
+int carrier_freq;
+int mod_freq;
+
 
 void setup(){
   pinMode(PIN, INPUT);
   digitalWrite(PIN, HIGH);
-  PCintPort:attachInterrupt(PIN, chnageFreq, RISING);
+  PCintPort::attachInterrupt(PIN, chnageFreq, RISING);
   Serial.begin(115200); // set up the Serial output so we can look at the piezo values // set up the Serial output so we can look at the light level
   
   startMozzi(); // :))
@@ -55,10 +58,10 @@ void updateControl(){
   int knob_value = mozziAnalogRead(KNOB_PIN); // value is 0-1023
 
   // map the knob to carrier frequency
-  int carrier_freq = kMapCarrierFreq(knob_value);
+  carrier_freq = kMapCarrierFreq(knob_value);
 
   //calculate the modulation frequency to stay in ratio
-  int mod_freq = carrier_freq * mod_ratio;
+  mod_freq = carrier_freq * mod_ratio;
 
   // set the FM oscillator frequencies
   aCarrier.setFreq(carrier_freq);
@@ -99,14 +102,11 @@ void updateControl(){
 
 void changeFreq()
 {
-  static int freq = 0;
-  if (freq==0){
-    freq=440;
+  if ((carrier_freq !== 0) || (mod_freq !== 0)){
+    carrier_freq = 0;
+    mod_freq = 0;
   }
-  else{
-    freq=0;
-  }
-  aSin.setFreq(freq); // set the frequency
+  // aSin.setFreq(freq); // set the frequency
 }
 
 int updateAudio(){
